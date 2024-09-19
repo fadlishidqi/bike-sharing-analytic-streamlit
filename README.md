@@ -15,6 +15,7 @@ This project focuses on analyzing a bike-sharing dataset to gain insights into u
 3. Which season tends to be the most popular for bike rentals based on usage volume?
 4. Is there a relationship between bike rentals and temperature or weather conditions?
 5. Are there more casual users or registered users renting bikes?
+6. What are the patterns in trip duration, and how do they relate to other factors?
 
 ## Project Structure
 
@@ -108,6 +109,11 @@ The following steps were taken to clean and preprocess the data:
 ### 5. **Comparison Between Casual and Registered Users**  
    - The total rentals were compared between casual and registered users.
 
+### 6. **Trip Duration Analysis**
+   - Trips were categorized into short, medium, and long durations.
+   - The distribution of trip durations was analyzed.
+   - Relationships between trip duration and other factors like temperature were explored.
+
 ## Visualizations
 
 Several visualizations were created using Seaborn and Matplotlib, including:
@@ -115,10 +121,23 @@ Several visualizations were created using Seaborn and Matplotlib, including:
 - **Line plots** to show bike rental trends by hour.
 - **Bar plots** to compare rentals by weather condition.
 - **Bar plots** to compare rentals between casual and registered users.
+- **Bar plots** to show the distribution of trip duration categories.
+
+## Advanced Analysis
+
+A manual clustering approach was implemented to categorize trips based on their duration:
+- Short trips: ≤ 10 minutes
+- Medium trips: 10-30 minutes
+- Long trips: > 30 minutes
+
+This clustering provided insights into:
+- The most common trip duration category.
+- The relationship between trip duration and factors like temperature.
+- Potential strategies for pricing and bike distribution based on trip duration patterns.
 
 ## Deployment
 
-This app is deployed on Streamlit Cloud. You can view the live version [here](https://yourappname.streamlit.app).
+This app is deployed on Streamlit Cloud. You can view the live version [here](https://bike-sharing-analytic-fadlishidqi.streamlit.app/).
 
 ## Dependencies
 
@@ -134,6 +153,8 @@ This app is deployed on Streamlit Cloud. You can view the live version [here](ht
 Possible future improvements for this analysis:
 - Including more datasets to expand the scope of analysis.
 - Integrating machine learning models to predict bike rental demand.
+- Conducting more detailed analysis on the factors influencing trip duration.
+- Implementing more advanced clustering techniques for user segmentation.
 
 ## Acknowledgments
 
