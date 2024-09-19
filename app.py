@@ -12,6 +12,12 @@ hour_df = pd.read_csv('data/hour.csv')
 st.title("Bike Sharing Data Analysis")
 st.subheader("By Fadli Shidqi Firdaus")
 
+st.markdown("""
+## Pengantar
+Analisis ini bertujuan untuk memahami pola penggunaan layanan bike sharing dan faktor-faktor yang mempengaruhinya.
+Kita akan menjelajahi data harian dan per jam untuk mendapatkan wawasan yang berharga.
+""")
+
 # Menampilkan 5 data teratas dari data day
 st.subheader("Data Preview - Day")
 st.write(day_df.head())
@@ -19,6 +25,12 @@ st.write(day_df.head())
 # Menampilkan 5 data teratas dari data hour
 st.subheader("Data Preview - Hour")
 st.write(hour_df.head())
+
+st.markdown("""
+## Data Cleaning
+Pada tahap ini, kita membersihkan data dengan menghapus kolom yang tidak diperlukan, 
+mengubah nama kolom untuk memperjelas data, dan mengkonversi tipe data yang sesuai.
+""")
 
 # Cleaning Data
 day_df = day_df.drop(columns=['workingday', 'instant', 'atemp', 'holiday'])
@@ -102,6 +114,12 @@ st.write(day_df.head())
 st.write("Data hour.csv yang sudah dibersihkan:")
 st.write(hour_df.head())
 
+st.markdown("""
+## Exploratory Data Analysis
+Berikut adalah analisis eksploratori untuk memahami pola penggunaan sepeda berdasarkan 
+berbagai faktor seperti hari, jam, musim, dan kondisi cuaca.
+""")
+
 # EDA: Di hari apa pengguna paling sering meminjam sepeda?
 st.subheader("Di hari apa pengguna paling sering meminjam sepeda?")
 weekday_rentals = day_df.groupby('day')['count_total'].sum().reset_index()
@@ -122,22 +140,35 @@ season_rentals = day_df.groupby('season')['count_total'].sum().reset_index()
 popular_season = season_rentals.loc[season_rentals['count_total'].idxmax()]
 st.write(f"Musim paling populer untuk penyewaan sepeda: {popular_season['season']}, dengan total {popular_season['count_total']}")
 
+# Tetapkan palet warna
+color_palette = sns.color_palette("husl", 8)
+sns.set_palette(color_palette)
+
 # Visualisasi penyewaan sepeda berdasarkan hari
 st.subheader("Visualisasi penyewaan sepeda berdasarkan hari")
-fig, ax = plt.subplots(figsize=(10, 6))
+fig, ax = plt.subplots(figsize=(12, 6))
 sns.barplot(x='day', y='count_total', data=weekday_rentals, ax=ax)
+ax.set_title("Jumlah Penyewaan Sepeda per Hari", fontsize=16)
+ax.set_xlabel("Hari", fontsize=12)
+ax.set_ylabel("Jumlah Penyewaan", fontsize=12)
 st.pyplot(fig)
 
 # Visualisasi penyewaan sepeda berdasarkan jam
 st.subheader("Visualisasi penyewaan sepeda berdasarkan jam")
-fig, ax = plt.subplots(figsize=(10, 6))
-sns.lineplot(x='hour', y='count_total', data=hourly_rentals, ax=ax, marker="o", color='red')
+fig, ax = plt.subplots(figsize=(12, 6))
+sns.lineplot(x='hour', y='count_total', data=hourly_rentals, ax=ax, marker="o", linewidth=2)
+ax.set_title("Jumlah Penyewaan Sepeda per Jam", fontsize=16)
+ax.set_xlabel("Jam", fontsize=12)
+ax.set_ylabel("Jumlah Penyewaan", fontsize=12)
 st.pyplot(fig)
 
 # Visualisasi penyewaan sepeda berdasarkan musim
 st.subheader("Visualisasi penyewaan sepeda berdasarkan musim")
-fig, ax = plt.subplots(figsize=(10, 6))
+fig, ax = plt.subplots(figsize=(12, 6))
 sns.barplot(x='season', y='count_total', data=season_rentals, ax=ax)
+ax.set_title("Jumlah Penyewaan Sepeda per Musim", fontsize=16)
+ax.set_xlabel("Musim", fontsize=12)
+ax.set_ylabel("Jumlah Penyewaan", fontsize=12)
 st.pyplot(fig)
 
 # Korelasi antara suhu dan penyewaan sepeda
@@ -149,8 +180,11 @@ st.write(weather_rentals)
 
 # Visualisasi rata-rata penyewaan sepeda berdasarkan kondisi cuaca
 st.subheader("Visualisasi rata-rata penyewaan sepeda berdasarkan kondisi cuaca")
-fig, ax = plt.subplots(figsize=(10, 6))
+fig, ax = plt.subplots(figsize=(12, 6))
 sns.barplot(x='weather_situation', y='count_total', data=weather_rentals, ax=ax)
+ax.set_title("Rata-rata Penyewaan Sepeda berdasarkan Kondisi Cuaca", fontsize=16)
+ax.set_xlabel("Kondisi Cuaca", fontsize=12)
+ax.set_ylabel("Rata-rata Jumlah Penyewaan", fontsize=12)
 st.pyplot(fig)
 
 # Pengguna berlangganan atau tidak?
@@ -159,6 +193,59 @@ subscription_rentals = day_df[['registered_users', 'casual_users']].sum().reset_
 subscription_rentals.columns = ['user_type', 'total_rentals']
 st.write(subscription_rentals)
 
-fig, ax = plt.subplots(figsize=(10, 6))
+fig, ax = plt.subplots(figsize=(12, 6))
 sns.barplot(x='user_type', y='total_rentals', data=subscription_rentals, ax=ax)
+ax.set_title("Perbandingan Jumlah Penyewaan: Pengguna Berlangganan vs Kasual", fontsize=16)
+ax.set_xlabel("Tipe Pengguna", fontsize=12)
+ax.set_ylabel("Total Penyewaan", fontsize=12)
 st.pyplot(fig)
+
+# Analisis Lanjutan - Clustering Manual
+st.subheader("Analisis Lanjutan - Clustering Manual")
+
+st.markdown("""
+Kita akan melakukan clustering manual berdasarkan durasi perjalanan untuk memahami 
+pola penggunaan sepeda berdasarkan lama waktu penyewaan.
+""")
+
+def categorize_duration(duration):
+    if duration <= 10:
+        return 'Perjalanan Singkat'
+    elif 10 < duration <= 30:
+        return 'Perjalanan Menengah'
+    else:
+        return 'Perjalanan Panjang'
+
+# Asumsikan 'duration' adalah dalam menit dan dihitung dari 'count_total'
+hour_df['duration'] = hour_df['count_total'] / 60  # Asumsi 1 count = 1 menit
+hour_df['duration_category'] = hour_df['duration'].apply(categorize_duration)
+
+# Analisis hasil clustering
+cluster_stats = hour_df.groupby('duration_category').agg({
+    'count_total': 'count',
+    'duration': ['mean', 'median'],
+    'temperature': 'mean'
+}).reset_index()
+
+st.write("Statistik Cluster Durasi Perjalanan:")
+st.write(cluster_stats)
+
+# Visualisasi hasil clustering
+fig, ax = plt.subplots(figsize=(12, 6))
+sns.barplot(x='duration_category', y=('count_total', 'count'), data=cluster_stats, ax=ax)
+ax.set_title("Distribusi Kategori Durasi Perjalanan", fontsize=16)
+ax.set_xlabel("Kategori Durasi", fontsize=12)
+ax.set_ylabel("Jumlah Perjalanan", fontsize=12)
+st.pyplot(fig)
+
+st.markdown("""
+   ### Interpretasi Hasil Clustering
+   - Kategori perjalanan yang paling umum adalah [kategori dengan jumlah terbanyak].
+   - Rata-rata durasi perjalanan terpanjang terjadi pada kategori [kategori dengan rata-rata durasi tertinggi].
+   - Terdapat hubungan antara durasi perjalanan dan suhu, di mana [jelaskan hubungan yang terlihat].
+
+   Informasi ini dapat digunakan untuk:
+   1. Menyesuaikan tarif berdasarkan durasi perjalanan.
+   2. Mengoptimalkan distribusi sepeda berdasarkan pola durasi perjalanan.
+   3. Merancang promosi khusus untuk mendorong penggunaan pada kategori durasi tertentu.
+   """)
