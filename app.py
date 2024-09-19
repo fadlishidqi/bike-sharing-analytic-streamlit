@@ -225,27 +225,74 @@ cluster_stats = hour_df.groupby('duration_category').agg({
     'count_total': 'count',
     'duration': ['mean', 'median'],
     'temperature': 'mean'
-}).reset_index()
+})
+
+cluster_stats.columns = ['count', 'duration_mean', 'duration_median', 'temperature_mean']
+cluster_stats = cluster_stats.reset_index()
 
 st.write("Statistik Cluster Durasi Perjalanan:")
 st.write(cluster_stats)
 
 # Visualisasi hasil clustering
 fig, ax = plt.subplots(figsize=(12, 6))
-sns.barplot(x='duration_category', y=('count_total', 'count'), data=cluster_stats, ax=ax)
+sns.barplot(x='duration_category', y='count', data=cluster_stats, ax=ax)
 ax.set_title("Distribusi Kategori Durasi Perjalanan", fontsize=16)
 ax.set_xlabel("Kategori Durasi", fontsize=12)
 ax.set_ylabel("Jumlah Perjalanan", fontsize=12)
 st.pyplot(fig)
 
-st.markdown("""
-   ### Interpretasi Hasil Clustering
-   - Kategori perjalanan yang paling umum adalah [kategori dengan jumlah terbanyak].
-   - Rata-rata durasi perjalanan terpanjang terjadi pada kategori [kategori dengan rata-rata durasi tertinggi].
-   - Terdapat hubungan antara durasi perjalanan dan suhu, di mana [jelaskan hubungan yang terlihat].
+# Temukan kategori dengan jumlah perjalanan terbanyak
+most_common_category = cluster_stats.loc[cluster_stats['count'].idxmax(), 'duration_category']
 
-   Informasi ini dapat digunakan untuk:
-   1. Menyesuaikan tarif berdasarkan durasi perjalanan.
-   2. Mengoptimalkan distribusi sepeda berdasarkan pola durasi perjalanan.
-   3. Merancang promosi khusus untuk mendorong penggunaan pada kategori durasi tertentu.
-   """)
+# Temukan kategori dengan rata-rata durasi terpanjang
+longest_duration_category = cluster_stats.loc[cluster_stats['duration_mean'].idxmax(), 'duration_category']
+
+# Temukan kategori dengan rata-rata suhu tertinggi
+highest_temp_category = cluster_stats.loc[cluster_stats['temperature_mean'].idxmax(), 'duration_category']
+
+st.markdown(f"""
+### Interpretasi Hasil Clustering
+- Kategori perjalanan yang paling umum adalah {most_common_category}.
+- Rata-rata durasi perjalanan terpanjang terjadi pada kategori {longest_duration_category}.
+- Kategori {highest_temp_category} memiliki rata-rata suhu tertinggi.
+
+Informasi ini dapat digunakan untuk:
+1. Menyesuaikan tarif berdasarkan durasi perjalanan.
+2. Mengoptimalkan distribusi sepeda berdasarkan pola durasi perjalanan.
+3. Merancang promosi khusus untuk mendorong penggunaan pada kategori durasi tertentu.
+4. Mempertimbangkan faktor cuaca dalam strategi penyediaan sepeda untuk berbagai durasi perjalanan.
+""")
+
+# Kesimpulan
+# Tambahkan kode ini di bagian akhir file Streamlit Anda
+
+st.subheader("Kesimpulan Analisis Data")
+
+st.markdown(f"""
+Berdasarkan analisis yang telah dilakukan, berikut kesimpulan utama yang menjawab pertanyaan bisnis:
+
+1. **Pola Penggunaan Sepeda:**
+   - Hari dengan penyewaan tertinggi adalah {most_rentals_day['day']}, sementara terendah adalah {least_rentals_day['day']}.
+   - Jam puncak penyewaan adalah pada pukul {peak_hour['hour']}.
+   - Musim {popular_season['season']} adalah yang paling populer untuk penyewaan sepeda.
+
+2. **Faktor yang Mempengaruhi Permintaan:**
+   - Terdapat korelasi positif antara suhu dan jumlah penyewaan sepeda (korelasi: {correlation_temp:.2f}).
+   - Kondisi cuaca mempengaruhi rata-rata penyewaan sepeda, dengan cuaca {weather_rentals.loc[weather_rentals['count_total'].idxmax(), 'weather_situation']} menunjukkan penyewaan tertinggi.
+
+3. **Profil Pengguna:**
+   - Pengguna berlangganan (registered users) lebih banyak dibandingkan pengguna kasual.
+
+4. **Pola Durasi Perjalanan:**
+   - Kategori perjalanan yang paling umum adalah {most_common_category}.
+   - Rata-rata durasi perjalanan terpanjang terjadi pada kategori {longest_duration_category}.
+
+5. **Rekomendasi Bisnis:**
+   - Tingkatkan ketersediaan sepeda pada hari {most_rentals_day['day']} dan sekitar pukul {peak_hour['hour']}.
+   - Fokuskan promosi pada musim {popular_season['season']} untuk memaksimalkan penyewaan.
+   - Pertimbangkan strategi untuk meningkatkan jumlah pengguna berlangganan.
+   - Siapkan rencana kontingensi untuk kondisi cuaca yang kurang favorable.
+   - Sesuaikan tarif dan strategi pemasaran berdasarkan kategori durasi perjalanan.
+
+Kesimpulan ini dapat digunakan untuk mengoptimalkan operasional dan strategi pemasaran layanan bike sharing.
+""")
